@@ -10,19 +10,30 @@ import UIKit
 class HUDVC: UIViewController, GaugeViewDelegate {
     
     
-
+    //MARK: Variables
     var isMPH:Bool = false
     var curDist = "Distance: 0 km"
     private let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
+    //MARK: App lyfecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpGauge()
         distView.transform = CGAffineTransform(rotationAngle: -90 * .pi/180)
         distLabel.transform = CGAffineTransform(scaleX: -1,y: 1)
-        // Do any additional setup after loading the view.
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+        
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        AppUtility.lockOrientation(.all)
+    }
+    //MARK: IBA
     @IBAction func backToMainVC(_ sender: Any) {
         let destVC: MainVC = appDelegate.mainVC!
         navigationController?.pushViewController(destVC, animated: true)
@@ -30,7 +41,7 @@ class HUDVC: UIViewController, GaugeViewDelegate {
     @IBOutlet weak var distView: UIView!
     @IBOutlet weak var gaugeView: GaugeView!
     @IBOutlet weak var distLabel: UILabel!
-    
+    //MARK: Gauge
     func setUpGauge(){
         
         let screenMinSize = min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)

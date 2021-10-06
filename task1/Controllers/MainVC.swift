@@ -41,7 +41,19 @@ class MainVC: UIViewController,GaugeViewDelegate, CLLocationManagerDelegate, IsM
         startTimer()
         setUpGauge()
         setUpNavBar()
-
+        
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+        
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // Don't forget to reset when view is being removed
+        AppUtility.lockOrientation(.all)
     }
     
     //MARK: Timer
