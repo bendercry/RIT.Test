@@ -61,7 +61,11 @@ class MainVC: UIViewController,GaugeViewDelegate, CLLocationManagerDelegate, IsM
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
     }
     @IBAction func resetDistAndSpeed(_ sender: Any) {
+        print(appDelegate.distance)
+        appDelegate.db?.insert(dist: appDelegate.distance, time: Int(NSDate().timeIntervalSince1970), isMPH: isMPH)
+        
         appDelegate.distance = 0
+        
         distLabel.text = "Distance: 0 \(isMPH ? "miles" : "km")"
         speedLabel.text = "Average speed: 0 \(isMPH ? "mph" : "km/h")"
         counter = 0

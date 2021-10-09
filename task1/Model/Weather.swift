@@ -10,6 +10,7 @@ import Foundation
 struct Weather{
     var temperature : Double = 0.0
     var city : String = ""
+    
     init(temperature: Double, city: String){
         self.temperature = temperature
         self.city = city

@@ -16,6 +16,7 @@ class SettingsVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         isMPHSwitch.isOn = isMPH
+        
         self.navigationController?.navigationBar.tintColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
         // Do any additional setup after loading the view.
     }

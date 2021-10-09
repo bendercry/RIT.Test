@@ -23,21 +23,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
     
     var arrayMPH: [Double]! = []
     var arrayKPH: [Double]! = []
+    var db: DBHelper? = nil
     
     //MARK: Setup app
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        db = DBHelper()
+        guard let db = db else {return false}
+        let dbReader = db.read()
+        print(dbReader)
         //setup VCs
         setupVCs()
         mainVC = window?.rootViewController?.children[1] as? MainVC
         hudVC = window?.rootViewController?.children[0] as? HUDVC
         hudVC?.loadViewIfNeeded()
         mainVC?.loadViewIfNeeded()
+        if dbReader.count != 0 {
+            mainVC?.isMPH = dbReader[0].isMPH
+            mainVC?.gaugeView.unitOfMeasurement = (dbReader[0].isMPH ? "mph" : "km/h")
+            distance = dbReader[0].dist
+            updateDistLabel(isMPH: dbReader[0].isMPH)
+        }
         //setup location manager
         locationManager.requestAlwaysAuthorization()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         locationManager.startUpdatingLocation()
         return true
+    }
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        guard let mainVC = mainVC else { return }
+        db?.insert(dist: distance, time: Int(NSDate().timeIntervalSince1970), isMPH: mainVC.isMPH)
+        
     }
     var orientationLock = UIInterfaceOrientationMask.all
 
@@ -62,23 +78,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
                 vc.fetchTemperature()
             }
         }
+        
         if lastLocation != nil {
             updateSpeedInfo()
             distance += lastLocation.distance(from: locations.last!)
-            if vc.isMPH{
-                let currentDist = distance * 0.00062137
-                mainVC?.distLabel.text = String(format: "Distance: %0.f miles", currentDist)
-                hudVC?.distLabel.text = String(format: "Distance: %0.f miles", currentDist)
-            }
-            else {
-                let currentDist = distance / 1000
-                mainVC?.distLabel.text = String(format: "Distance: %0.f km", currentDist)
-                hudVC?.distLabel.text = String(format: "Distance: %0.f km", currentDist)
-            }
+            updateDistLabel(isMPH: vc.isMPH)
         }
         lastLocation = locations.last
     }
-    
+    func updateDistLabel(isMPH: Bool){
+        if isMPH{
+            let currentDist = distance * 0.00062137
+            mainVC?.distLabel.text = String(format: "Distance: %0.f miles", currentDist)
+            hudVC?.distLabel.text = String(format: "Distance: %0.f miles", currentDist)
+        }
+        else{
+            let currentDist = distance / 1000
+            mainVC?.distLabel.text = String(format: "Distance: %0.f km", currentDist)
+            hudVC?.distLabel.text = String(format: "Distance: %0.f km", currentDist)
+        }
+    }
     //MARK: Speed
     func updateSpeedInfo(){
         let speed = currentLocation?.speed
