@@ -56,15 +56,15 @@ class DBHelper{
     func insert(dist: Double, time: Int, isMPH: Bool)
         {
             
-            let insertStatementString = "INSERT INTO statistics (dist, isMPH, time) VALUES (?, ?, ?);"
+            let query = "INSERT INTO statistics (dist, isMPH, time) VALUES (?, ?, ?);"
             
-            var insertStatement: OpaquePointer? = nil
-            if sqlite3_prepare_v2(db, insertStatementString, -1, &insertStatement, nil) == SQLITE_OK {
+            var statement: OpaquePointer? = nil
+            if sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK {
                 print(dist)
-                sqlite3_bind_double(insertStatement, 1, Double(dist))
-                sqlite3_bind_int(insertStatement, 2, isMPH ? Int32(1) : Int32(0))
-                sqlite3_bind_int(insertStatement, 3, Int32(time))
-                if sqlite3_step(insertStatement) == SQLITE_DONE {
+                sqlite3_bind_double(statement, 1, Double(dist))
+                sqlite3_bind_int(statement, 2, isMPH ? Int32(1) : Int32(0))
+                sqlite3_bind_int(statement, 3, Int32(time))
+                if sqlite3_step(statement) == SQLITE_DONE {
                     print("Successfully inserted row.")
                 } else {
                     print("Could not insert row.")
@@ -73,14 +73,14 @@ class DBHelper{
                 print("INSERT statement could not be prepared.")
             }
             
-            sqlite3_finalize(insertStatement)
+            sqlite3_finalize(statement)
         }
     
     func drop(){
         let stat = "DROP TABLE IF EXISTS statistics;"
-        var insertStatement: OpaquePointer? = nil
-        if sqlite3_prepare_v2(db, stat, -1, &insertStatement, nil) == SQLITE_OK{
-            if sqlite3_step(insertStatement) == SQLITE_DONE{
+        var statement: OpaquePointer? = nil
+        if sqlite3_prepare_v2(db, stat, -1, &statement, nil) == SQLITE_OK{
+            if sqlite3_step(statement) == SQLITE_DONE{
                 print("Table has dropped")
             }
         }
