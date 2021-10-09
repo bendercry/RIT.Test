@@ -13,41 +13,53 @@ public protocol GaugeViewDelegate : AnyObject{
 }
 
 open class GaugeView: UIView{
-    
+    //MARK: Variables
+    //Font
     public static let defaultFontName = "HelveticaNeue-CondensedBold"
     public static let defaultMinMaxValueFont = "HelveticaNeue"
-    
+    //Setup value
     public var value: Double = 0{
         didSet{
             value = max(min(value, maxValue), minValue)
             valueLabel.text = String(format: "%.0f", value)
             strokeGauge()
-
         }
     }
     
+    //Delegate
+    public weak var delegate: GaugeViewDelegate? = nil
+    
+    //Angle
+    var startAngle: Double = .pi * 3/4
+    var endAngle: Double = .pi/4 + .pi * 2
+    
+    //Borders of value
     public var minValue = 0.0
     public var maxValue = 120.0
     public var limitValue = 60.0
     
+    //MARK: @IB var
+    //Ring
+    @IBInspectable public var showRing:Bool = false
     @IBInspectable public var ringBackgroundColor: UIColor = UIColor(white: 0.9, alpha: 1)
     @IBInspectable public var ringThickness: Double = 15
+    
+    //Value and unit of measurement
     @IBInspectable public var valueFont: UIFont = UIFont(name: defaultFontName, size: 140) ?? UIFont.systemFont(ofSize: 140)
     @IBInspectable public var valueTextColor: UIColor = UIColor(white: 0.1, alpha: 1)
-
+    
     @IBInspectable public var unitOfMeasurement: String = ""
     @IBInspectable public var unitOfMeasurementFont: UIFont = UIFont(name: defaultFontName, size: 16) ?? UIFont.systemFont(ofSize: 16)
     @IBInspectable public var unitOfMeasurementTextColor: UIColor = UIColor(white: 0.3, alpha: 1)
+    
     @IBInspectable public var showUnitOfMeasurement: Bool = true
-    @IBInspectable public var showRing:Bool = false
+
+    //Divisions
     @IBInspectable public var divisionsPadding: Double = 12
     @IBInspectable public var divisionsRadius: Double = 1.25
     
-    public weak var delegate: GaugeViewDelegate? = nil
     
-    var startAngle: Double = .pi * 3/4
-    var endAngle: Double = .pi/4 + .pi * 2
-    
+    // MARK: Setup labels
     lazy var progressLayer: CAShapeLayer = {
             let layer = CAShapeLayer()
             layer.contentsScale = UIScreen.main.scale
@@ -65,18 +77,18 @@ open class GaugeView: UIView{
             label.adjustsFontSizeToFitWidth = true
             return label
     }()
+    
     lazy var unitOfMeasurementLabel: UILabel = {
            let label = UILabel()
            label.backgroundColor = UIColor.clear
            label.textAlignment = .center
            label.adjustsFontSizeToFitWidth = true
            return label
-       }()
-    
+    }()
+    //MARK: Draw CG
     override open func draw(_ rect: CGRect) {
         let center = CGPoint(x: bounds.width/2, y: bounds.height/2)
         let ringRadius = Double(min(bounds.width, bounds.height))/2 - ringThickness/2
-        
         
         let context = UIGraphicsGetCurrentContext()
         context?.setLineWidth(CGFloat(ringThickness))
@@ -107,6 +119,7 @@ open class GaugeView: UIView{
                                      width: (CGFloat(ringRadius) + CGFloat(ringThickness)/2) * 2,
                                      height: (CGFloat(ringRadius) + CGFloat(ringThickness)/2) * 2)
         progressLayer.bounds = progressLayer.frame
+        
         let smoothedPath = UIBezierPath(arcCenter: progressLayer.position,
                                         radius: CGFloat(ringRadius),
                                         startAngle: CGFloat(startAngle),
@@ -119,6 +132,7 @@ open class GaugeView: UIView{
         if valueLabel.superview == nil {
             addSubview(valueLabel)
         }
+        
         valueLabel.text = String(format: "%.0f", value)
         valueLabel.font = valueFont
         valueLabel.minimumScaleFactor = 10/valueFont.pointSize
@@ -131,6 +145,7 @@ open class GaugeView: UIView{
         if unitOfMeasurementLabel.superview == nil {
             addSubview(unitOfMeasurementLabel)
         }
+        
         unitOfMeasurementLabel.text = unitOfMeasurement
         unitOfMeasurementLabel.font = unitOfMeasurementFont
         unitOfMeasurementLabel.minimumScaleFactor = 10/unitOfMeasurementFont.pointSize
@@ -142,7 +157,7 @@ open class GaugeView: UIView{
                                               height: 20)
         
     }
-    
+    //MARK: Delegate func
     public func strokeGauge() {
         
         // Set progress for ring layer

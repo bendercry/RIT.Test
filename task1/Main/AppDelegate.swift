@@ -18,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
     var lastLocation: CLLocation!
     var distance: Double = 0
     
+    var orientationLock = UIInterfaceOrientationMask.all
     var mainVC: MainVC?
     var hudVC: HUDVC?
     
@@ -27,22 +28,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
     
     //MARK: Setup app
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        db = DBHelper()
-        guard let db = db else {return false}
-        let dbReader = db.read()
-        print(dbReader)
+        
         //setup VCs
         setupVCs()
         mainVC = window?.rootViewController?.children[1] as? MainVC
         hudVC = window?.rootViewController?.children[0] as? HUDVC
         hudVC?.loadViewIfNeeded()
         mainVC?.loadViewIfNeeded()
+        
+        //setup db
+        db = DBHelper()
+        guard let db = db else {return false}
+        let dbReader = db.read()
+        
         if dbReader.count != 0 {
             mainVC?.isMPH = dbReader[0].isMPH
             mainVC?.gaugeView.unitOfMeasurement = (dbReader[0].isMPH ? "mph" : "km/h")
             distance = dbReader[0].dist
             updateDistLabel(isMPH: dbReader[0].isMPH)
         }
+        
         //setup location manager
         locationManager.requestAlwaysAuthorization()
         locationManager.delegate = self
@@ -50,18 +55,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
         locationManager.startUpdatingLocation()
         return true
     }
+    
     func applicationDidEnterBackground(_ application: UIApplication) {
         guard let mainVC = mainVC else { return }
         db?.insert(dist: distance, time: Int(NSDate().timeIntervalSince1970), isMPH: mainVC.isMPH)
-        
     }
-    var orientationLock = UIInterfaceOrientationMask.all
-
+    
+    
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
             return self.orientationLock
     }
     
-    // i dont know why but at first launch it's return error = (domain=kclerrordomain code=1 "(null)") and the only restart simualtor fix it
+    // i dont know why but at first launch it's return error = (domain=kclerrordomain code=1 "(null)") and only restart simualtor fix it
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print(error.localizedDescription)
     }
@@ -87,17 +92,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
         lastLocation = locations.last
     }
     func updateDistLabel(isMPH: Bool){
-        if isMPH{
+        
+        if isMPH {
             let currentDist = distance * 0.00062137
             mainVC?.distLabel.text = String(format: "Distance: %0.f miles", currentDist)
             hudVC?.distLabel.text = String(format: "Distance: %0.f miles", currentDist)
         }
-        else{
+        else {
             let currentDist = distance / 1000
             mainVC?.distLabel.text = String(format: "Distance: %0.f km", currentDist)
             hudVC?.distLabel.text = String(format: "Distance: %0.f km", currentDist)
         }
     }
+    
     //MARK: Speed
     func updateSpeedInfo(){
         let speed = currentLocation?.speed
@@ -135,13 +142,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
     func avgSpeed(){
         guard let mainVC = mainVC else {return}
         if mainVC.isMPH{
-            let speed:[Double] = arrayMPH
+            let speed: [Double] = arrayMPH
             let speedAvg = speed.reduce(0,+) / Double(speed.count)
             mainVC.speedLabel.text = "Average speed:\(speedAvg) mph"
             
         }
-        else{
-            let speed:[Double] = arrayKPH
+        else {
+            let speed: [Double] = arrayKPH
             let speedAvg = speed.reduce(0,+) / Double(speed.count)
             mainVC.speedLabel.text = "Average speed:\(speedAvg) km/h"
         }
@@ -161,7 +168,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
         self.window?.backgroundColor = UIColor.white
         self.window?.makeKeyAndVisible()
     }
-
-
+    
 }
 

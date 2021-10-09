@@ -12,14 +12,12 @@ class DBHelper{
     var db: OpaquePointer?
     var path: String = "myDb.sqlite"
     init(){
-        
         self.db = createDB()
-        
         self.createTable(query: "CREATE TABLE IF NOT EXISTS statistics (dist REAL, isMPH INTEGER, time INTEGER)")
     }
     
-    func createDB() -> OpaquePointer?
-        {
+    func createDB() -> OpaquePointer?{
+        
             let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
                 .appendingPathComponent(path)
             var db: OpaquePointer? = nil
@@ -34,7 +32,7 @@ class DBHelper{
                 print("Successfully opened connection to database at \(path)")
                 return db
             }
-        }
+    }
     
     func createTable(query: String){
         
@@ -53,8 +51,7 @@ class DBHelper{
     }
     
     
-    func insert(dist: Double, time: Int, isMPH: Bool)
-        {
+    func insert(dist: Double, time: Int, isMPH: Bool){
             
             let query = "INSERT INTO statistics (dist, isMPH, time) VALUES (?, ?, ?);"
             
@@ -72,7 +69,6 @@ class DBHelper{
             } else {
                 print("INSERT statement could not be prepared.")
             }
-            
             sqlite3_finalize(statement)
         }
     
@@ -103,7 +99,6 @@ class DBHelper{
                     model.time = time
                         
                     mainList.append(model)
-                   
                 }
             }
             return mainList
