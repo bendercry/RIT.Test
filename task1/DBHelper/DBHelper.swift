@@ -81,7 +81,7 @@ class DBHelper{
         var insertStatement: OpaquePointer? = nil
         if sqlite3_prepare_v2(db, stat, -1, &insertStatement, nil) == SQLITE_OK{
             if sqlite3_step(insertStatement) == SQLITE_DONE{
-                print("ok")
+                print("Table has dropped")
             }
         }
     }
@@ -102,7 +102,6 @@ class DBHelper{
                     model.isMPH = isMPH == 0
                     model.time = time
                         
-                    print("current  = \(dist) \(isMPH) \(time)")
                     mainList.append(model)
                    
                 }
