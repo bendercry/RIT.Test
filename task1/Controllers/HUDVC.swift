@@ -11,9 +11,12 @@ class HUDVC: UIViewController, GaugeViewDelegate {
     
     
     //MARK: Variables
+    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
     var isMPH:Bool = false
     var curDist = "Distance: 0 km"
-    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    var tracker: GPSTracker?
+    
     
     //MARK: VC lyfecycle
     override func viewDidLoad() {

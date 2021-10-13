@@ -11,17 +11,20 @@ import CoreLocation
 import Alamofire
 import SwiftyJSON
 
-class MainVC: UIViewController,GaugeViewDelegate, CLLocationManagerDelegate, IsMPHDelegate{
+class MainVC: UIViewController, GaugeViewDelegate, IsMPHDelegate, GPSTrackerDelegate{
     
     //MARK: Variables
     var isMPH: Bool = false
+    var tracker = GPSTracker()
     //Location
     var locationValue: CLLocationCoordinate2D? = nil
     private var speed: CLLocationSpeed? = nil
     private let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    var arrayMPH: [Double]! = []
+    var arrayKPH: [Double]! = []
     
     //Weather
-    private var weather: Weather?
+    private var weather = Weather(city: "", temperature: 0)
     
     //Timer
     private var timer: Timer?
@@ -38,10 +41,11 @@ class MainVC: UIViewController,GaugeViewDelegate, CLLocationManagerDelegate, IsM
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        tracker.startTracking()
+        tracker.delegate = self
         startTimer()
         setUpGauge()
         setUpNavBar()
-        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -61,10 +65,9 @@ class MainVC: UIViewController,GaugeViewDelegate, CLLocationManagerDelegate, IsM
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
     }
     @IBAction func resetDistAndSpeed(_ sender: Any) {
-        print(appDelegate.distance)
-        appDelegate.db?.insert(dist: appDelegate.distance, time: Int(NSDate().timeIntervalSince1970), isMPH: isMPH)
+        //appDelegate.db?.insert(dist: appDelegate.distance, time: Int(NSDate().timeIntervalSince1970), isMPH: isMPH)
         
-        appDelegate.distance = 0
+        tracker.distance = 0
         
         distLabel.text = "Distance: 0 \(isMPH ? "miles" : "km")"
         speedLabel.text = "Average speed: 0 \(isMPH ? "mph" : "km/h")"
@@ -98,6 +101,7 @@ class MainVC: UIViewController,GaugeViewDelegate, CLLocationManagerDelegate, IsM
         //navigate to HUD viewcontroller
         guard let destVC = appDelegate.hudVC else {return}
         destVC.isMPH = isMPH
+        destVC.tracker = tracker
         destVC.gaugeView.unitOfMeasurementLabel.text = isMPH ? "mph" : "km/h"
         destVC.gaugeView.unitOfMeasurement = isMPH ? "mph" : "km/h"
         navigationController?.popViewController(animated: true)
@@ -107,7 +111,7 @@ class MainVC: UIViewController,GaugeViewDelegate, CLLocationManagerDelegate, IsM
         self.performSegue(withIdentifier: "toSettingsVC", sender: self)
     }
     
-    //MARK: Delegates
+    //MARK: Segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue .identifier == "toSettingsVC" {
             //Navigate to Settings viewcontroller
@@ -120,41 +124,64 @@ class MainVC: UIViewController,GaugeViewDelegate, CLLocationManagerDelegate, IsM
     func returnedIsMPH(isMPH: Bool) {
         self.isMPH = isMPH
         gaugeView.unitOfMeasurementLabel.text = isMPH ? "mph" : "km/h"
-        appDelegate.updateSpeedInfo()
     }
 }
 
-//MARK: Location and weather
+//MARK: Weather
 extension MainVC{
-    func setUpTemp(){
-        guard let weather = weather else {return}
-        cityLabel.text = weather.city
-        tempLabel.text = String(format: "%0.f°",weather.temperature - 273.15)
+    func updateWeather(location: CLLocation) {
+        weather.fetchInfo(locationValue: location.coordinate){ (city,temp) in
+            self.cityLabel.text = city
+            self.tempLabel.text = String(format: "%0.f°",temp - 273.15)
+            self.weather.city = city
+            self.weather.temperature = temp
+        }
     }
-    func fetchTemperature(){
-        let apiKey = "c27b0060a784a272b8752fe57ca59569"
-        
-        guard let lon = locationValue?.longitude else {return}
-        guard let lat = locationValue?.latitude else {return}
+}
 
-        let url = "https://api.openweathermap.org/data/2.5/weather?lat=\(Int(lat))&lon=\(Int(lon))&appid=\(apiKey)"
+//MARK: Speed and distance
+extension MainVC{
+    func updateSpeed(speed: CLLocationSpeed) {
+        let speedToMPH = speed * 2.23694
+        let speedToKPH = speed * 3.6
         
-        let request = AF.request(url)
-        
-        request.responseJSON{ response in
-            switch response.result{
-
-            case .success(let value):
-                let json = JSON(value)
-                let temp = json["main"]["temp"].doubleValue
-                let city = json["name"].stringValue
-                self.weather = Weather(temperature: temp, city: city)
-                self.setUpTemp()
-            case .failure(let error):
-                print(error)
-            }
+        if speed <= 0{
+            gaugeView.value = 0
+            return
         }
         
+        if isMPH{
+            gaugeView.value = speedToMPH
+            arrayMPH.append(speedToMPH)
+        }
+        else {
+            gaugeView.value = speedToKPH
+            arrayKPH.append(speedToKPH)
+        }
+        avgSpeed()
+    }
+    func avgSpeed(){
+        if isMPH{
+            let speed: [Double] = arrayMPH
+            let speedAvg = speed.reduce(0,+) / Double(speed.count)
+            speedLabel.text = "Average speed:\(speedAvg) mph"
+        }
+        else{
+            let speed: [Double] = arrayKPH
+            let speedAvg = speed.reduce(0,+) / Double(speed.count)
+            speedLabel.text = "Average speed:\(speedAvg) km/h"
+        }
+    }
+    
+    func updateDistance(distance: Double) {
+        if isMPH{
+            let currentDist = distance * 0.00062137
+            distLabel.text = String(format: "Distance: %0.f miles", currentDist)
+        }
+        else {
+            let currentDist = distance / 1000
+            distLabel.text = String(format: "Distance: %0.f km", currentDist)
+        }
     }
 }
 

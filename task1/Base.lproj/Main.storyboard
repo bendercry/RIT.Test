@@ -19,14 +19,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="fAS-sT-Eio" userLabel="Buttons Stack View">
-                                <rect key="frame" x="10" y="827" width="394" height="35"/>
+                                <rect key="frame" x="10" y="841" width="394" height="35"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M2k-fK-6YZ">
                                         <rect key="frame" x="0.0" y="0.0" width="197" height="35"/>
                                         <color key="backgroundColor" systemColor="opaqueSeparatorColor"/>
                                         <color key="tintColor" systemColor="labelColor"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" title="HUD"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="HUD" cornerStyle="capsule"/>
                                         <connections>
                                             <action selector="hudBtnClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gsc-d2-W6e"/>
                                         </connections>
@@ -36,7 +36,7 @@
                                         <color key="backgroundColor" systemColor="opaqueSeparatorColor"/>
                                         <color key="tintColor" systemColor="labelColor"/>
                                         <state key="normal" title="Button"/>
-                                        <buttonConfiguration key="configuration" style="plain" title="Reset"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Reset" cornerStyle="capsule"/>
                                         <connections>
                                             <action selector="resetDistAndSpeed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VtJ-x1-Luw"/>
                                         </connections>
@@ -122,7 +122,7 @@
                             <constraint firstAttribute="trailing" secondItem="bgZ-ZX-bzT" secondAttribute="trailing" constant="20" id="ZFe-pj-hWY"/>
                             <constraint firstItem="umu-iZ-Jvt" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="eET-uN-8IR"/>
                             <constraint firstItem="fAS-sT-Eio" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="q4V-4y-QWR"/>
-                            <constraint firstItem="fAS-sT-Eio" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="x91-N4-YCX"/>
+                            <constraint firstItem="fAS-sT-Eio" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom" constant="-20" id="x91-N4-YCX"/>
                             <constraint firstItem="umu-iZ-Jvt" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="znt-o8-1w2"/>
                         </constraints>
                     </view>
