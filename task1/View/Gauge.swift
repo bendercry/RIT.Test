@@ -61,29 +61,29 @@ open class GaugeView: UIView{
     
     // MARK: Setup labels
     lazy var progressLayer: CAShapeLayer = {
-            let layer = CAShapeLayer()
-            layer.contentsScale = UIScreen.main.scale
-            layer.fillColor = UIColor.clear.cgColor
-            layer.lineCap = CAShapeLayerLineCap.butt
-            layer.lineJoin = CAShapeLayerLineJoin.bevel
-            layer.strokeEnd = 0
-            return layer
+        let layer = CAShapeLayer()
+        layer.contentsScale = UIScreen.main.scale
+        layer.fillColor = UIColor.clear.cgColor
+        layer.lineCap = CAShapeLayerLineCap.butt
+        layer.lineJoin = CAShapeLayerLineJoin.bevel
+        layer.strokeEnd = 0
+        return layer
     }()
     
     lazy var valueLabel: UILabel = {
-            let label = UILabel()
-            label.backgroundColor = UIColor.clear
-            label.textAlignment = .center
-            label.adjustsFontSizeToFitWidth = true
-            return label
+        let label = UILabel()
+        label.backgroundColor = UIColor.clear
+        label.textAlignment = .center
+        label.adjustsFontSizeToFitWidth = true
+        return label
     }()
     
     lazy var unitOfMeasurementLabel: UILabel = {
-           let label = UILabel()
-           label.backgroundColor = UIColor.clear
-           label.textAlignment = .center
-           label.adjustsFontSizeToFitWidth = true
-           return label
+        let label = UILabel()
+        label.backgroundColor = UIColor.clear
+        label.textAlignment = .center
+        label.adjustsFontSizeToFitWidth = true
+        return label
     }()
     //MARK: Draw CG
     override open func draw(_ rect: CGRect) {

@@ -21,6 +21,7 @@ class HUDVC: UIViewController, GaugeViewDelegate {
         setUpGauge()
         distView.transform = CGAffineTransform(rotationAngle: -90 * .pi/180)
         distLabel.transform = CGAffineTransform(scaleX: -1,y: 1)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -48,9 +49,8 @@ class HUDVC: UIViewController, GaugeViewDelegate {
     func setUpGauge(){
         
         let screenMinSize = min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
-        let ratio = Double(screenMinSize)/320
+        let ratio = Double(screenMinSize)/450
         gaugeView.backgroundColor = UIColor.white
-        
         gaugeView.valueFont = UIFont(name: GaugeView.defaultFontName, size: CGFloat(140 * ratio))!
         gaugeView.valueLabel.transform = CGAffineTransform(scaleX: -1,y: 1)
         gaugeView.valueTextColor = UIColor(white: 0.1, alpha: 1)

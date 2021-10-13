@@ -163,7 +163,7 @@ extension MainVC{
     func setUpGauge(){
         
         let screenMinSize = min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
-        let ratio = Double(screenMinSize)/320
+        let ratio = Double(screenMinSize)/450
         
         gaugeView.backgroundColor = UIColor.white
         gaugeView.valueFont = UIFont(name: GaugeView.defaultFontName, size: CGFloat(140 * ratio))!
