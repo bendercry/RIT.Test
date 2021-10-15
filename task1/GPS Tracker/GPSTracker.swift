@@ -17,10 +17,10 @@ protocol GPSTrackerDelegate: AnyObject {
 }
 
 class GPSTracker: NSObject, CLLocationManagerDelegate{
-    internal var locationManager: CLLocationManager!
-    internal var lastLocation: CLLocation!
-    internal var distance: Double = 0
-    internal var speed: CLLocationSpeed = 0
+    var locationManager: CLLocationManager!
+    var lastLocation: CLLocation!
+    var distance: Double = 0
+    var speed: CLLocationSpeed = 0
     
     public weak var delegate: GPSTrackerDelegate? = nil
     

@@ -32,8 +32,8 @@ class MainVC: UIViewController, GaugeViewDelegate, IsMPHDelegate, GPSTrackerDele
     private var counter: Int = 0
     
     //Tracker
-    internal var tracker = GPSTracker()
-    internal var db: DBHelper? = nil
+    var tracker = GPSTracker()
+    var db: DBHelper? = nil
     
     //MARK: @IB var and func
     @IBOutlet weak var gaugeView: GaugeView!

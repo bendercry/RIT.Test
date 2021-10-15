@@ -13,8 +13,8 @@ class HUDVC: UIViewController, GaugeViewDelegate {
     //MARK: Variables
     private let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
-    internal var isMPH: Bool = false
-    internal var curDist = "Distance: 0 km"
+    var isMPH: Bool = false
+    var curDist = "Distance: 0 km"
     
     //MARK: @IB var
     @IBOutlet weak var distView: UIView!
