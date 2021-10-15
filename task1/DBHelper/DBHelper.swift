@@ -59,13 +59,12 @@ class DBHelper{
             
             var statement: OpaquePointer? = nil
             if sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK {
-                print(dist)
                 sqlite3_bind_double(statement, 1, Double(dist))
                 sqlite3_bind_int(statement, 2, Int32(time))
                 if sqlite3_step(statement) == SQLITE_DONE {
-                    print("Successfully inserted row.")
+                    print("Successfully inserted row in statistics.")
                 } else {
-                    print("Could not insert row.")
+                    print("Could not insert row in statistics.")
                 }
             } else {
                 print("INSERT statement could not be prepared.")
@@ -81,9 +80,9 @@ class DBHelper{
             sqlite3_bind_int(statement, 1, Int32(1))
             sqlite3_bind_int(statement, 2, Int32(isMPH ? 1 : 0))
             if sqlite3_step(statement) == SQLITE_DONE {
-                print("Successfully inserted row.")
+                print("Successfully inserted row in config.")
             } else {
-                print("Could not insert row.")
+                print("Could not insert row in config.")
             }
         } else {
             print("INSERT statement could not be prepared.")
@@ -96,14 +95,14 @@ class DBHelper{
         var statement: OpaquePointer? = nil
         if sqlite3_prepare_v2(db, stat, -1, &statement, nil) == SQLITE_OK{
             if sqlite3_step(statement) == SQLITE_DONE{
-                print("Table has dropped")
+                print("Table statistics has dropped")
             }
         }
         stat = "DROP TABLE IF EXISTS config;"
         statement = nil
         if sqlite3_prepare_v2(db, stat, -1, &statement, nil) == SQLITE_OK{
             if sqlite3_step(statement) == SQLITE_DONE{
-                print("Table has dropped")
+                print("Table config has dropped")
             }
         }
     }
@@ -121,7 +120,6 @@ class DBHelper{
                     let model = DbFiles()
                     model.dist = dist
                     model.time = time
-                    print(model)
                     mainList.append(model)
                 }
             }

@@ -45,7 +45,7 @@ class MainVC: UIViewController, GaugeViewDelegate, IsMPHDelegate, GPSTrackerDele
     @IBAction func resetDistAndSpeed(_ sender: Any) {
         //Reset timer and distance,speed
         
-        db?.insertStat(dist: tracker.distance, time: Int(NSDate().timeIntervalSince1970))
+        //db?.insertStat(dist: tracker.distance, time: Int(NSDate().timeIntervalSince1970))
         tracker.distance = 0
         arrayKPH.removeAll()
         arrayMPH.removeAll()
