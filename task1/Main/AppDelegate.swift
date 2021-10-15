@@ -29,8 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
         hudVC?.loadViewIfNeeded()
         mainVC?.loadViewIfNeeded()
         
-        
-       
         return true
     }
     
