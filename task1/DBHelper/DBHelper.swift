@@ -25,12 +25,10 @@ class DBHelper{
                 .appendingPathComponent(path)
             var db: OpaquePointer? = nil
             
-            if sqlite3_open(fileURL.path, &db) != SQLITE_OK
-            {
+            if sqlite3_open(fileURL.path, &db) != SQLITE_OK {
                 print("Error opening database")
                 return nil
-            }
-            else
+            } else
             {
                 print("Successfully opened connection to database at \(path)")
                 return db
@@ -42,12 +40,10 @@ class DBHelper{
         if sqlite3_prepare(self.db, query, -1, &statement, nil) == SQLITE_OK {
             if sqlite3_step(statement) == SQLITE_DONE {
                 print("Table creation success")
-            }
-            else{
+            } else{
                 print("Table creation fail")
             }
-        }
-        else{
+        } else{
             print("Preparation fail")
         }
     }

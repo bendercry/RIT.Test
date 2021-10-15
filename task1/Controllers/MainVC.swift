@@ -153,8 +153,7 @@ extension MainVC{
             let currentDist = tracker.distance * 0.00062137
             distLabel.text = String(format: "Distance: %0.f miles", currentDist)
             appDelegate.hudVC?.distLabel.text = String(format: "Distance: %0.f miles", currentDist)
-        }
-        else {
+        } else {
             let currentDist = tracker.distance / 1000
             distLabel.text = String(format: "Distance: %0.f km", currentDist)
             appDelegate.hudVC?.distLabel.text = String(format: "Distance: %0.f km", currentDist)
@@ -187,8 +186,8 @@ extension MainVC{
         if isMPH{
             gaugeView.value = speedToMPH
             arrayMPH.append(speedToMPH)
-        }
-        else {
+            
+        } else {
             gaugeView.value = speedToKPH
             arrayKPH.append(speedToKPH)
         }
@@ -202,8 +201,7 @@ extension MainVC{
             let speedAvg = speed.reduce(0,+) / Double(speed.count)
             speedLabel.text = String(format: "Average speed: %0.f mph",speedAvg)
         
-        }
-        else{
+        } else{
             let speed: [Double] = arrayKPH
             let speedAvg = speed.reduce(0,+) / Double(speed.count)
             speedLabel.text = String(format: "Average speed: %0.f km/h",speedAvg)
@@ -214,8 +212,7 @@ extension MainVC{
         if isMPH{
             let currentDist = distance * 0.00062137
             distLabel.text = String(format: "Distance: %0.f miles", currentDist)
-        }
-        else {
+        } else {
             let currentDist = distance / 1000
             distLabel.text = String(format: "Distance: %0.f km", currentDist)
         }
