@@ -10,6 +10,5 @@ import Foundation
 class DbFiles: Codable{
     var id: Int = 0
     var dist : Double = 0
-    var isMPH: Bool = false
     var time : Int = 0
 }

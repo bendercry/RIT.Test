@@ -14,13 +14,15 @@ struct Weather{
     //Variables
     var temperature : Double = 0.0
     var city : String = ""
+    
     // Initializer
     init(city: String, temperature: Double){
         self.city = city
         self.temperature = temperature
     }
+    
     //Fetching current forecast using coordinates
-    mutating func fetchInfo(locationValue: CLLocationCoordinate2D, completion: @escaping (String,Double) -> () ){
+    func fetchInfo(locationValue: CLLocationCoordinate2D, completion: @escaping (String,Double) -> () ){
         let lon = locationValue.longitude
         let lat = locationValue.latitude
         let apiKey = "c27b0060a784a272b8752fe57ca59569"

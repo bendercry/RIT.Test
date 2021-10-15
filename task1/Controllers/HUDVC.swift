@@ -13,10 +13,18 @@ class HUDVC: UIViewController, GaugeViewDelegate {
     //MARK: Variables
     private let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
-    var isMPH:Bool = false
-    var curDist = "Distance: 0 km"
-    var tracker: GPSTracker?
+    internal var isMPH: Bool = false
+    internal var curDist = "Distance: 0 km"
     
+    //MARK: @IB var
+    @IBOutlet weak var distView: UIView!
+    @IBOutlet weak var gaugeView: GaugeView!
+    @IBOutlet weak var distLabel: UILabel!
+    
+    @IBAction func backToMainVC(_ sender: Any) {
+        let destVC: MainVC = appDelegate.mainVC!
+        navigationController?.pushViewController(destVC, animated: true)
+    }
     
     //MARK: VC lyfecycle
     override func viewDidLoad() {
@@ -24,12 +32,10 @@ class HUDVC: UIViewController, GaugeViewDelegate {
         setUpGauge()
         distView.transform = CGAffineTransform(rotationAngle: -90 * .pi/180)
         distLabel.transform = CGAffineTransform(scaleX: -1,y: 1)
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
         
     }
@@ -39,17 +45,8 @@ class HUDVC: UIViewController, GaugeViewDelegate {
         AppUtility.lockOrientation(.all)
     }
     
-    //MARK: IBA
-    @IBAction func backToMainVC(_ sender: Any) {
-        let destVC: MainVC = appDelegate.mainVC!
-        navigationController?.pushViewController(destVC, animated: true)
-    }
-    @IBOutlet weak var distView: UIView!
-    @IBOutlet weak var gaugeView: GaugeView!
-    @IBOutlet weak var distLabel: UILabel!
-    
     //MARK: Gauge
-    func setUpGauge(){
+    private func setUpGauge(){
         
         let screenMinSize = min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
         let ratio = Double(screenMinSize)/450

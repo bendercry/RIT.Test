@@ -17,10 +17,10 @@ protocol GPSTrackerDelegate: AnyObject {
 }
 
 class GPSTracker: NSObject, CLLocationManagerDelegate{
-    var locationManager: CLLocationManager!
-    var lastLocation: CLLocation!
-    var distance: Double = 0
-    var speed: CLLocationSpeed = 0
+    internal var locationManager: CLLocationManager!
+    internal var lastLocation: CLLocation!
+    internal var distance: Double = 0
+    internal var speed: CLLocationSpeed = 0
     
     public weak var delegate: GPSTrackerDelegate? = nil
     
@@ -50,11 +50,8 @@ class GPSTracker: NSObject, CLLocationManagerDelegate{
         }
         lastLocation = locations.last
         delegate?.updateWeather(location: lastLocation)
-//        print(lastLocation)
-//        
-//        print(speed)
-//        print(latValue)
-//        print(lonValue)
+       // print(lastLocation as Any)
+
     }
     
     

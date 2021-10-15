@@ -14,14 +14,15 @@ import SwiftyJSON
 class MainVC: UIViewController, GaugeViewDelegate, IsMPHDelegate, GPSTrackerDelegate{
     
     //MARK: Variables
-    var isMPH: Bool = false
-    var tracker = GPSTracker()
+    private var isMPH: Bool = false
+    private var editImage = UIImage(named: "Ellipsis")!
+    
     //Location
-    var locationValue: CLLocationCoordinate2D? = nil
+    private var locationValue: CLLocationCoordinate2D? = nil
     private var speed: CLLocationSpeed? = nil
     private let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    var arrayMPH: [Double]! = []
-    var arrayKPH: [Double]! = []
+    private var arrayMPH: [Double]! = []
+    private var arrayKPH: [Double]! = []
     
     //Weather
     private var weather = Weather(city: "", temperature: 0)
@@ -30,53 +31,69 @@ class MainVC: UIViewController, GaugeViewDelegate, IsMPHDelegate, GPSTrackerDele
     private var timer: Timer?
     private var counter: Int = 0
     
-    private var editImage = UIImage(named: "Ellipsis")!
+    //Tracker
+    internal var tracker = GPSTracker()
+    internal var db: DBHelper? = nil
+    
+    //MARK: @IB var and func
     @IBOutlet weak var gaugeView: GaugeView!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var tempLabel: UILabel!
     @IBOutlet weak var distLabel: UILabel!
     @IBOutlet weak var speedLabel: UILabel!
     
-    //MARK: App lyfecycle
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        tracker.startTracking()
-        tracker.delegate = self
-        startTimer()
-        setUpGauge()
-        setUpNavBar()
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
-        
-    }
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        // Don't forget to reset when view is being removed
-        AppUtility.lockOrientation(.all)
-    }
-    
-    //MARK: Timer
-    func startTimer(){
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
-    }
     @IBAction func resetDistAndSpeed(_ sender: Any) {
-        //appDelegate.db?.insert(dist: appDelegate.distance, time: Int(NSDate().timeIntervalSince1970), isMPH: isMPH)
+        //Reset timer and distance,speed
         
+        db?.insertStat(dist: tracker.distance, time: Int(NSDate().timeIntervalSince1970))
         tracker.distance = 0
-        
+        arrayKPH.removeAll()
+        arrayMPH.removeAll()
         distLabel.text = "Distance: 0 \(isMPH ? "miles" : "km")"
         speedLabel.text = "Average speed: 0 \(isMPH ? "mph" : "km/h")"
         counter = 0
         timer?.invalidate()
         startTimer()
     }
-   
-    @objc func updateTimer(){
+    
+    @IBAction func hudBtnClicked(_ sender: Any) {
+        //navigate to HUD viewcontroller
+        guard let destVC = appDelegate.hudVC else {return}
+        destVC.isMPH = isMPH
+        destVC.gaugeView.unitOfMeasurementLabel.text = isMPH ? "mph" : "km/h"
+        destVC.gaugeView.unitOfMeasurement = isMPH ? "mph" : "km/h"
+        navigationController?.popViewController(animated: true)
+    }
+    
+    //MARK: App lyfecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view.
+        initDB()
+        tracker.startTracking()
+        tracker.delegate = self
+        startTimer()
+        setUpGauge()
+        setUpUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        AppUtility.lockOrientation(.all)
+    }
+    
+    //MARK: Timer
+    private func startTimer(){
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTimer), userInfo: nil, repeats: true)
+    }
+    
+    @objc private func updateTimer(){
         counter += 1
         if counter == 10*60{
             resetDistAndSpeed(self)
@@ -84,30 +101,21 @@ class MainVC: UIViewController, GaugeViewDelegate, IsMPHDelegate, GPSTrackerDele
     }
     
     //MARK: Update UI
-    func setUpNavBar(){
+    private func setUpUI(){
         let editBtn = UIBarButtonItem(image: editImage, style: .plain, target: self, action: #selector(showEditMenu))
         editBtn.tintColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
         self.navigationItem.rightBarButtonItem = editBtn
         self.navigationItem.setHidesBackButton(true, animated: true)
+        self.navigationController?.navigationBar.backgroundColor = UIColor.white
         cityLabel.text = "Loading..."
         cityLabel.adjustsFontSizeToFitWidth = true
         cityLabel.minimumScaleFactor = 0.8
         tempLabel.adjustsFontSizeToFitWidth = true
         cityLabel.minimumScaleFactor = 0.8
-        
+        speedLabel.text = "Average speed: 0 \(isMPH ? "mph" : "km/h")"
     }
     
-    @IBAction func hudBtnClicked(_ sender: Any) {
-        //navigate to HUD viewcontroller
-        guard let destVC = appDelegate.hudVC else {return}
-        destVC.isMPH = isMPH
-        destVC.tracker = tracker
-        destVC.gaugeView.unitOfMeasurementLabel.text = isMPH ? "mph" : "km/h"
-        destVC.gaugeView.unitOfMeasurement = isMPH ? "mph" : "km/h"
-        navigationController?.popViewController(animated: true)
-    }
-    
-    @objc func showEditMenu(){
+    @objc private func showEditMenu(){
         self.performSegue(withIdentifier: "toSettingsVC", sender: self)
     }
     
@@ -124,17 +132,43 @@ class MainVC: UIViewController, GaugeViewDelegate, IsMPHDelegate, GPSTrackerDele
     func returnedIsMPH(isMPH: Bool) {
         self.isMPH = isMPH
         gaugeView.unitOfMeasurementLabel.text = isMPH ? "mph" : "km/h"
+        db?.insertMPH(isMPH: isMPH)
     }
 }
-
+//MARK: Init db and implement info
+extension MainVC{
+    private func initDB(){
+        db = DBHelper()
+        guard let db = db else {return}
+        let configReader = db.readConfig()
+        isMPH = configReader
+        let statReader = db.readStat()
+        if statReader.count != 0 {
+            tracker.distance = statReader[0].dist
+            updateDistLabel()
+        }
+    }
+    private func updateDistLabel(){
+        if isMPH {
+            let currentDist = tracker.distance * 0.00062137
+            distLabel.text = String(format: "Distance: %0.f miles", currentDist)
+            appDelegate.hudVC?.distLabel.text = String(format: "Distance: %0.f miles", currentDist)
+        }
+        else {
+            let currentDist = tracker.distance / 1000
+            distLabel.text = String(format: "Distance: %0.f km", currentDist)
+            appDelegate.hudVC?.distLabel.text = String(format: "Distance: %0.f km", currentDist)
+        }
+    }
+}
 //MARK: Weather
 extension MainVC{
     func updateWeather(location: CLLocation) {
         weather.fetchInfo(locationValue: location.coordinate){ (city,temp) in
-            self.cityLabel.text = city
-            self.tempLabel.text = String(format: "%0.f°",temp - 273.15)
             self.weather.city = city
             self.weather.temperature = temp
+            self.cityLabel.text = city
+            self.tempLabel.text = String(format: "%0.f°",temp - 273.15)
         }
     }
 }
@@ -158,18 +192,21 @@ extension MainVC{
             gaugeView.value = speedToKPH
             arrayKPH.append(speedToKPH)
         }
+        appDelegate.hudVC?.gaugeView.value = gaugeView.value
         avgSpeed()
     }
+    
     func avgSpeed(){
         if isMPH{
             let speed: [Double] = arrayMPH
             let speedAvg = speed.reduce(0,+) / Double(speed.count)
-            speedLabel.text = "Average speed:\(speedAvg) mph"
+            speedLabel.text = String(format: "Average speed: %0.f mph",speedAvg)
+        
         }
         else{
             let speed: [Double] = arrayKPH
             let speedAvg = speed.reduce(0,+) / Double(speed.count)
-            speedLabel.text = "Average speed:\(speedAvg) km/h"
+            speedLabel.text = String(format: "Average speed: %0.f km/h",speedAvg)
         }
     }
     
@@ -182,12 +219,13 @@ extension MainVC{
             let currentDist = distance / 1000
             distLabel.text = String(format: "Distance: %0.f km", currentDist)
         }
+        appDelegate.hudVC?.distLabel.text = distLabel.text
     }
 }
 
 //MARK: Gauge
 extension MainVC{
-    func setUpGauge(){
+    private func setUpGauge(){
         
         let screenMinSize = min(UIScreen.main.bounds.size.width, UIScreen.main.bounds.size.height)
         let ratio = Double(screenMinSize)/450
@@ -196,7 +234,7 @@ extension MainVC{
         gaugeView.valueFont = UIFont(name: GaugeView.defaultFontName, size: CGFloat(140 * ratio))!
         gaugeView.unitOfMeasurementFont = UIFont(name: GaugeView.defaultFontName, size: CGFloat(16 * ratio))!
         
-        gaugeView.unitOfMeasurement = "km/h"
+        gaugeView.unitOfMeasurement = isMPH ? "mph" : "km/h"
         gaugeView.delegate = self
         gaugeView.minValue = 0
         gaugeView.maxValue = 120

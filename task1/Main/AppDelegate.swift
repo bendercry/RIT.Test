@@ -29,17 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
         hudVC?.loadViewIfNeeded()
         mainVC?.loadViewIfNeeded()
         
-        //setup db
-        db = DBHelper()
-        guard let db = db else {return false}
-        let dbReader = db.read()
-        
-        if dbReader.count != 0 {
-            mainVC?.isMPH = dbReader[0].isMPH
-            mainVC?.gaugeView.unitOfMeasurement = (dbReader[0].isMPH ? "mph" : "km/h")
-            //distance = dbReader[0].dist
-            //updateDistLabel(isMPH: dbReader[0].isMPH)
-        }
         
        
         return true
@@ -47,7 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CLLocationManagerDelegate
     
     func applicationDidEnterBackground(_ application: UIApplication) {
         guard let mainVC = mainVC else { return }
-       // db?.insert(dist: distance, time: Int(NSDate().timeIntervalSince1970), isMPH: mainVC.isMPH)
+        mainVC.db?.insertStat(dist: mainVC.tracker.distance, time: Int(NSDate().timeIntervalSince1970))
     }
     
     
